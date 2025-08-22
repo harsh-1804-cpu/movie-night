@@ -19,7 +19,8 @@ const app = express();
 const server = http.createServer(app);
 
 // Allowed frontend origin (for deployment + dev)
-const allowedOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
+const allowedOrigin =[ process.env.CLIENT_URL, 
+'http://localhost:5173'];
 
 // Setup Socket.IO
 const io = new Server(server, {
