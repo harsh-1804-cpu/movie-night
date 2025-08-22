@@ -229,7 +229,14 @@ const generateInvite = async () => {
       color: '#fff',
       borderRadius: 12,
     }}>
-       <div style={{ padding: 16 }}>
+       <div style={{ 
+        padding: 16,
+        // Responsive: stack for mobile
+        width: '100%',
+        '@media(max-width: 768px)': {
+          gridColumn: '1 / -1'
+        }
+      }}>
         <h2 style={{ fontSize: 26, marginBottom: 6 }}>{watchlist?.title}</h2>
         <p style={{ marginBottom: 12, color: '#ccc' }}>{watchlist?.description}</p>
 
@@ -254,6 +261,8 @@ const generateInvite = async () => {
                 background: '#1e1e2f',
                 color: '#fff',
                 cursor: 'pointer',
+                width: 'auto',
+                maxWidth: '100%',
                 WebkitAppearance: 'none',
                 MozAppearance: 'textfield',
                 appearance: 'none',
@@ -290,17 +299,20 @@ const generateInvite = async () => {
                 cursor: 'pointer',
                 color: '#fff',
                 fontWeight: 'bold',
+                width: '100%',
+                maxWidth: '100%',
               }}
             >
               {inviteLink ? '📋 Copy Invite Link' : '🔗 Generate Invite Link'}
             </button>
-            {inviteLink && <div style={{ marginTop: 6, fontSize: 13, color: '#bbb' }}>Link: {inviteLink}</div>}
+            {inviteLink && <div style={{ marginTop: 6, fontSize: 13, color: '#bbb', wordBreak: 'break-all' }}>Link: {inviteLink}</div>}
           </div>
         )}
 
+        {/*Search Movies*/}
         <section style={{ marginTop: 12 }}>
           <h4>🎬 Search movies (TMDB)</h4>
-          <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+          <div style={{ display: 'flex', flexDirection: 'row', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
             <input 
               placeholder="Search movies..." 
               value={query} 
@@ -312,6 +324,7 @@ const generateInvite = async () => {
                 border: '1px solid #555',
                 background: '#1e1e2f',
                 color: '#fff',
+                minWidth: 0
               }}
             />
             <button
@@ -323,6 +336,7 @@ const generateInvite = async () => {
                 borderRadius: 6,
                 cursor: 'pointer',
                 color: '#fff',
+                flexShrink: 0
               }}
             >
               Search
@@ -337,6 +351,7 @@ const generateInvite = async () => {
                 borderRadius: 8,
                 marginBottom: 10,
                 overflow: 'hidden',
+                flexWrap: 'wrap'
               }}>
                 {r.poster_path && (
                   <img src={`https://image.tmdb.org/t/p/w92${r.poster_path}`} 
@@ -357,6 +372,7 @@ const generateInvite = async () => {
                     cursor: 'pointer',
                     color: '#fff',
                     fontWeight: 'bold',
+                    flexShrink: 0
                   }}
                 >
                   ➕
@@ -369,7 +385,7 @@ const generateInvite = async () => {
         {/* Movies in list */}
         <section style={{ marginTop: 20 }}>
           <h4>📌 Movies in list</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12, marginTop: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12, marginTop: 10 }}>
             {watchlist?.movies?.map(m => (
               <div key={m.tmdbId} style={{
                 background: '#2f2f46',
@@ -434,7 +450,7 @@ const generateInvite = async () => {
         </section>
       </div>
 
-      <aside style={{ background: '#2f2f46', padding: 16, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.4)', display: 'flex', flexDirection:'column'}}>
+      <aside style={{ background: '#2f2f46', padding: 16, borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.4)', display: 'flex', flexDirection:'column','@media(max-width: 768px)': { gridColumn: '1 / -1', marginTop: 20 }}}>
         <h4>Chat</h4>
         <div ref={messagesRef} style={{flex:1, height: 400, overflowY: 'auto', border: '1px solid #444', padding: 8, marginTop:6, background: '#1e1e2f',borderRadius: 6, }}>
           {messages.map(msg => (
@@ -450,7 +466,7 @@ const generateInvite = async () => {
         </div>
 
         {/* Chat Input */}
-        <div style={{ display: 'flex', marginTop: 8 }}>
+        <div style={{ display: 'flex', marginTop: 8, flexWrap: 'wrap' }}>
           <input
             style={{ flex: 1,
               padding: 8,
@@ -458,6 +474,7 @@ const generateInvite = async () => {
               border: '1px solid #555',
               background: '#1e1e2f',
               color: '#fff',
+              minWidth: 0
              }}
             placeholder="Write a message..."
             value={text}
@@ -474,6 +491,7 @@ const generateInvite = async () => {
             cursor: 'pointer',
             color: '#fff',
             fontWeight: 'bold',
+            flexShrink: 0
           }}>Send</button>
         </div>
       </aside>
