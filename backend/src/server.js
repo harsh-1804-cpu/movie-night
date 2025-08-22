@@ -87,6 +87,16 @@ io.on('connection', (socket) => {
   });
 });
 
+// Root route
+app.get("/", (req, res) => {
+  res.send("✅ Movie Night Backend is running!");
+});
+
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", message: "Backend is healthy 🚀" });
+});
+
 // Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, '0.0.0.0', () => {
