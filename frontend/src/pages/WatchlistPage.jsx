@@ -11,7 +11,6 @@ export default function WatchlistPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, token } = useContext(AuthContext);
-  const [loading, setLoading] = useState(true);
 
   const [watchlist, setWatchlist] = useState(null);
   const [query, setQuery] = useState('');
@@ -110,9 +109,7 @@ export default function WatchlistPage() {
 
   const fetchWatchlist = async () => {
     try {
-      const res = await api.get(`/watchlists/${id}`,{
-          headers: { Authorization: `Bearer ${token}` },
-        });
+      const res = await api.get(`/watchlists/${id}`);
       setWatchlist({
         ...res.data,
         movies: res.data.movies.map(m => ({
@@ -134,21 +131,6 @@ export default function WatchlistPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this watchlist?")) {
-      try {
-        await api.delete(`/watchlists/${watchlist._id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        alert("Watchlist deleted successfully!");
-        navigate("/watchlists"); // Redirect back to watchlists page
-      } catch (err) {
-        console.error(err);
-        alert(err.response?.data?.msg || "Delete failed");
-      }
-    }
-  };
-
   const searchTMDB = async () => {
     if (!query) return;
     try {
@@ -165,7 +147,6 @@ export default function WatchlistPage() {
     }
   };
 
-  
   const addMovie = async (movie) => {
     try {
       await api.post(`/watchlists/${id}/movies`, {
@@ -223,21 +204,6 @@ const generateInvite = async () => {
   }
 };
 
-const toggleVisibility = async () => {
-  try {
-    const res = await api.patch(
-      `/watchlists/${watchlist._id}/visibility`,
-      { isPublic: !watchlist.isPublic },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    setWatchlist(res.data);
-  } catch (err) {
-    console.error(err);
-    alert(err.response?.data?.msg || "Failed to toggle visibility");
-  }
-};
-
-
 // Update party time (owner only)
   const updatePartyTime = async () => {
     if (!partyInput) return alert('Select a date & time');
@@ -252,8 +218,6 @@ const toggleVisibility = async () => {
       alert(err.response?.data?.msg || 'Failed to update party time');
     }
   };
-
-  
 
 
   return (
@@ -345,44 +309,6 @@ const toggleVisibility = async () => {
               {inviteLink ? '📋 Copy Invite Link' : '🔗 Generate Invite Link'}
             </button>
             {inviteLink && <div style={{ marginTop: 6, fontSize: 13, color: '#bbb', wordBreak: 'break-all' }}>Link: {inviteLink}</div>}
-          </div>
-        )}
-
-        {watchlist?.owner?._id === user?.id && (
-          <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
-            {/* Delete Watchlist */}
-            <button
-              onClick={handleDelete}
-              style={{
-                background: "#e84118",
-                border: "none",
-                padding: "10px 16px",
-                borderRadius: 6,
-                cursor: "pointer",
-                color: "#fff",
-                fontWeight: "bold",
-                flex: 1
-              }}
-            >
-              🗑 Delete Watchlist
-            </button>
-
-            {/* Toggle Visibility */}
-            <button
-              onClick={toggleVisibility}
-              style={{
-                background: watchlist?.isPublic ? "#2ed573" : "#57606f",
-                border: "none",
-                padding: "10px 16px",
-                borderRadius: 6,
-                cursor: "pointer",
-                color: "#fff",
-                fontWeight: "bold",
-                flex: 1
-              }}
-            >
-              {watchlist?.isPublic ? "🌍 Public" : "🔒 Private"}
-            </button>
           </div>
         )}
 

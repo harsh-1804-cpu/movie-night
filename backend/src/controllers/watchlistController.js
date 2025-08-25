@@ -14,10 +14,13 @@ exports.createWatchlist = async (req, res) => {
 
 exports.getWatchlists = async (req, res) => {
   try {
-    const userId = req.user?.id; // will be undefined if no auth middleware
-    const filter = userId
-      ? { $or: [ { visibility: 'public' }, { owner: userId }, { members: userId } ] }
-      : { visibility: 'public' };
+    const userId = req.user?.id;
+    const filter = {
+      $or: [
+        { visibility: 'public' },
+        ...(userId ? [{ owner: userId }, { members: userId }] : [])
+      ]
+    };
     const lists = await Watchlist.find(filter).populate('owner', 'username avatarUrl').sort({ updatedAt: -1 });
     res.json(lists);
   } catch (err) { res.status(500).json({ msg: 'Server error' }); }
@@ -27,26 +30,10 @@ exports.getOne = async (req, res) => {
   try {
     const wl = await Watchlist.findById(req.params.id).populate('owner', 'username avatarUrl');
     if (!wl) return res.status(404).json({ msg: 'Not found' });
-
-    // ✅ Allow public watchlist access without login
-    if (wl.visibility === 'private') {
-      if (!req.user) {
-        return res.status(401).json({ msg: 'Login required' });
-      }
-      if (
-        !wl.members.map(String).includes(String(req.user.id)) &&
-        String(wl.owner._id) !== String(req.user.id)
-      ) {
-        return res.status(403).json({ msg: 'Forbidden' });
-      }
-    }
-
+    if (wl.visibility === 'private' && !wl.members.map(String).includes(String(req.user.id)) && String(wl.owner._id) !== String(req.user.id)) return res.status(403).json({ msg: 'Forbidden' });
     res.json(wl);
-  } catch (err) {
-    res.status(500).json({ msg: 'Server error' });
-  }
+  } catch (err) { res.status(500).json({ msg: 'Server error' }); }
 };
-
 
 exports.updateWatchlist = async (req, res) => {
   try {
@@ -72,31 +59,10 @@ exports.deleteWatchlist = async (req, res) => {
   try {
     const wl = await Watchlist.findById(req.params.id);
     if (!wl) return res.status(404).json({ msg: 'Not found' });
-
-    // Only owner can delete
-    if (String(wl.owner) !== String(req.user.id)) {
-      return res.status(403).json({ msg: 'Only owner can delete this watchlist' });
-    }
-
+    if (String(wl.owner) !== String(req.user.id)) return res.status(403).json({ msg: 'Only owner' });
     await wl.deleteOne();
-    res.json({ msg: 'Watchlist Deleted Successfully' });
+    res.json({ msg: 'Deleted' });
   } catch (err) { res.status(500).json({ msg: 'Server error' }); }
-};
-
-exports.getOnePublic = async (req, res) => {
-  try {
-    const wl = await Watchlist.findById(req.params.id).populate('owner', 'username avatarUrl');
-    if (!wl) return res.status(404).json({ msg: 'Not found' });
-
-    // If it's private, block access (since no auth here)
-    if (wl.visibility === 'private') {
-      return res.status(403).json({ msg: 'This watchlist is private' });
-    }
-
-    res.json(wl);
-  } catch (err) { 
-    res.status(500).json({ msg: 'Server error' }); 
-  }
 };
 
 exports.addMovie = async (req, res) => {
