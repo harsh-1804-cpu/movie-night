@@ -219,6 +219,20 @@ const generateInvite = async () => {
     }
   };
 
+  const handleDelete = async () => {
+  if (!watchlist?._id) return;
+  if (!window.confirm('Are you sure you want to delete this watchlist?')) return;
+
+  try {
+    await api.delete(`/watchlists/${watchlist._id}`); // no extra headers if interceptor set
+    alert('Watchlist deleted successfully!');
+    navigate('/watchlists');
+  } catch (err) {
+    console.error(err);
+    const msg = err.response?.data?.msg || 'Delete failed';
+    alert(msg);
+  }
+};
 
   return (
     <div style={{
@@ -447,6 +461,7 @@ const generateInvite = async () => {
                     ✖
                   </button>
                 )}
+
               </div>
             ))}
           </div>
@@ -462,6 +477,7 @@ const generateInvite = async () => {
             </div>
           ))}
         </div>
+        
 
         {/* Typing Indicator */}
         <div style={{ fontSize: 12, color: '#aaa', marginTop: 6 }}>

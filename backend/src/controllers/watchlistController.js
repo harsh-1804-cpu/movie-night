@@ -59,10 +59,13 @@ exports.deleteWatchlist = async (req, res) => {
   try {
     const wl = await Watchlist.findById(req.params.id);
     if (!wl) return res.status(404).json({ msg: 'Not found' });
-    if (String(wl.owner) !== String(req.user.id)) return res.status(403).json({ msg: 'Only owner' });
+    if (String(wl.owner) !== String(req.user.id)) return res.status(403).json({ msg: 'Only owner can delete this watchlist' });
     await wl.deleteOne();
-    res.json({ msg: 'Deleted' });
-  } catch (err) { res.status(500).json({ msg: 'Server error' }); }
+    res.json({ msg: 'Watchlist Deleted Successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Server error' });
+  }
 };
 
 exports.addMovie = async (req, res) => {

@@ -33,6 +33,20 @@ export default function Dashboard(){
     }
   };
 
+  const deleteWatchlist = async (watchlistId, watchlistTitle) => {
+  if (!window.confirm(`Are you sure you want to delete "${watchlistTitle}"?`)) return;
+  
+  try {
+    await api.delete(`/watchlists/${watchlistId}`);
+    alert('Watchlist deleted successfully!');
+    fetchLists(); // Refresh the list
+  } catch (err) {
+    console.error(err);
+    const msg = err.response?.data?.msg || 'Delete failed';
+    alert(msg);
+  }
+};
+
   return (
     <div style={styles.wrapper}>
       {/* background layers */}
@@ -76,15 +90,44 @@ export default function Dashboard(){
                   <img src={poster} alt="poster" style={styles.poster} />
                 </div>
                 <div style={{flex:1, marginLeft:12}}>
-                  <Link to={`/watchlist/${l._id}`} style={styles.listLink}>
-                    {l.title}
-                  </Link>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Link to={`/watchlist/${l._id}`} style={styles.listLink}>
+                      {l.title}
+                    </Link>
+                    
+                    {/* Delete button - only show for owner */}
+                    {l.owner?._id === user?.id && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          deleteWatchlist(l._id, l.title);
+                        }}
+                        style={{
+                          background: '#e74c3c',
+                          border: 'none',
+                          borderRadius: 4,
+                          padding: '4px 8px',
+                          color: '#fff',
+                          cursor: 'pointer',
+                          fontSize: 12,
+                          fontWeight: 'bold',
+                          marginLeft: 10,
+                          transition: 'background 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => e.target.style.background = '#c0392b'}
+                        onMouseLeave={(e) => e.target.style.background = '#e74c3c'}
+                      >
+                        🗑️ Delete
+                      </button>
+                    )}
+                  </div>
                   <div style={styles.meta}>
                     <small>{l.visibility}</small> 
                     <span> · owner: {l.owner?.username}</span>
                   </div>
                 </div>
-              </li>
+              </li>            
             );
           })}
         </ul>
