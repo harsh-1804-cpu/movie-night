@@ -27,10 +27,26 @@ exports.getOne = async (req, res) => {
   try {
     const wl = await Watchlist.findById(req.params.id).populate('owner', 'username avatarUrl');
     if (!wl) return res.status(404).json({ msg: 'Not found' });
-    if (wl.visibility === 'private' && !wl.members.map(String).includes(String(req.user.id)) && String(wl.owner._id) !== String(req.user.id)) return res.status(403).json({ msg: 'Forbidden' });
+
+    // ✅ Allow public watchlist access without login
+    if (wl.visibility === 'private') {
+      if (!req.user) {
+        return res.status(401).json({ msg: 'Login required' });
+      }
+      if (
+        !wl.members.map(String).includes(String(req.user.id)) &&
+        String(wl.owner._id) !== String(req.user.id)
+      ) {
+        return res.status(403).json({ msg: 'Forbidden' });
+      }
+    }
+
     res.json(wl);
-  } catch (err) { res.status(500).json({ msg: 'Server error' }); }
+  } catch (err) {
+    res.status(500).json({ msg: 'Server error' });
+  }
 };
+
 
 exports.updateWatchlist = async (req, res) => {
   try {

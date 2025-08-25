@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const optionalAuth = require('../middleware/optionalAuth');
 const ctrl = require('../controllers/watchlistController');
 
 
 router.post('/', auth, ctrl.createWatchlist);
-router.get('/', ctrl.getWatchlists);
+router.get('/', optionalAuth, ctrl.getWatchlists);
+// router.get('/', ctrl.getWatchlists);
 router.get('/:id', ctrl.getOne);
 router.put('/:id', auth, ctrl.updateWatchlist);
 router.delete('/:id', auth, ctrl.deleteWatchlist);
