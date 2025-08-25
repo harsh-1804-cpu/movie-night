@@ -17,6 +17,7 @@ const WatchlistSchema = new mongoose.Schema({
   visibility: { type: String, enum: ['public', 'private'], default: 'private', index: true },
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  isPublic: { type: Boolean, default: false },
   movies: [MovieSubSchema],
   inviteCode: { type: String, unique: true, sparse: true },
   partyTime: { type: Date, default: null }

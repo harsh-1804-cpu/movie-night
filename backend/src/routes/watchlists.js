@@ -5,8 +5,8 @@ const ctrl = require('../controllers/watchlistController');
 
 
 router.post('/', auth, ctrl.createWatchlist);
-router.get('/', auth, ctrl.getWatchlists);
-router.get('/:id', auth, ctrl.getOne);
+router.get('/', ctrl.getWatchlists);
+router.get('/:id', ctrl.getOne);
 router.put('/:id', auth, ctrl.updateWatchlist);
 router.delete('/:id', auth, ctrl.deleteWatchlist);
 router.post('/:id/movies', auth, ctrl.addMovie);
@@ -33,6 +33,27 @@ router.put('/:id/party', auth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+// ✅ Toggle visibility
+router.patch("/:id/visibility", auth, async (req, res) => {
+  try {
+    const watchlist = await Watchlist.findById(req.params.id);
+    if (!watchlist) return res.status(404).json({ msg: "Watchlist not found" });
+
+    // Only owner can toggle
+    if (watchlist.owner.toString() !== req.user.id) {
+      return res.status(403).json({ msg: "Not authorized" });
+    }
+
+    watchlist.isPublic = req.body.isPublic;
+    await watchlist.save();
+
+    res.json(watchlist);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
   }
 });
 module.exports = router;
